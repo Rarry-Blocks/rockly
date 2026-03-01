@@ -1,5 +1,5 @@
 {
-  "name": "rockly",
+  "name": "blockly",
   "version": "1.0.0",
   "description": "A modification of Blockly created for Rarry.",
   "keywords": [
@@ -7,10 +7,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Rarry-Blocks/rockly.git"
+    "url": "git+https://github.com/Rarry-Blocks/blockly.git"
   },
   "bugs": {
-    "url": "https://github.com/Rarry-Blocks/rockly/issues"
+    "url": "https://github.com/Rarry-Blocks/blockly/issues"
   },
   "homepage": "https://developers.google.com/blockly/",
   "author": {

@@ -14,7 +14,7 @@ import {execSync} from 'child_process';
 import * as buildTasks from './build_tasks.mjs';
 import * as packageTasks from './package_tasks.mjs';
 
-const UPSTREAM_URL = 'https://github.com/Rarry-Blocks/rockly.git';
+const UPSTREAM_URL = 'https://github.com/Rarry-Blocks/blockly.git';
 
 /**
  * Extra paths to include in the gh_pages branch (beyond the normal

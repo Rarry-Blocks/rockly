@@ -22,7 +22,7 @@ jobs:
       - name: Install
         run: npm ci
 
-      - name: Package Rockly
+      - name: Package Blockly
         run: npm run package
 
       - name: Publish dist branch
