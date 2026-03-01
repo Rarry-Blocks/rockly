@@ -1,0 +1,55 @@
+name: Build and Publish Dist
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Rockly
+        run: npm run build
+
+      - name: Deploy to dist branch
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          git checkout --orphan dist
+          git rm -rf .
+
+          cp blockly_compressed.js .
+          cp blockly.mjs .
+          cp blocks_compressed.js .
+          cp javascript_compressed.js .
+          cp index.js .
+          cp index.mjs .
+          cp index.d.ts .
+
+          echo '{
+            "name": "@rarry/rockly",
+            "version": "1.0.0",
+            "main": "index.js",
+            "module": "index.mjs",
+            "types": "index.d.ts"
+          }' > package.json
+
+          git add .
+          git commit -m "Auto build from main"
+          git push -f origin dist
