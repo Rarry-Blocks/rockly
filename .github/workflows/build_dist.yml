@@ -22,8 +22,8 @@ jobs:
       - name: Install
         run: npm ci
 
-      - name: Build Rockly
-        run: npm run build
+      - name: Package Rockly
+        run: npm run package
 
       - name: Publish dist branch
         uses: peaceiris/actions-gh-pages@v4
