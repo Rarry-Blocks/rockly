@@ -1,9 +1,9 @@
 {
-  "name": "blockly",
+  "name": "rockly",
   "version": "1.0.0",
   "description": "A modification of Blockly created for Rarry.",
   "keywords": [
-    "blockly"
+    "blockly", "rockly"
   ],
   "repository": {
     "type": "git",

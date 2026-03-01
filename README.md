@@ -1,6 +1,6 @@
-# Blockly
+# Rockly
 
-A modification of Blockly created for Rarry.
+A modification of Blockly made for Rarry's editor.
 
 **Changed:**
 - Added new usable block shapes: bowl and pillow.
