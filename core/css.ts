@@ -84,14 +84,7 @@ let content = `
 
 .blocklyBlockCanvas.blocklyCanvasTransitioning,
 .blocklyBubbleCanvas.blocklyCanvasTransitioning {
-  transition: transform .15s;
-}
-
-@media (prefers-reduced-motion) {
-  .blocklyBlockCanvas.blocklyCanvasTransitioning,
-  .blocklyBubbleCanvas.blocklyCanvasTransitioning {
-    transition: none;
-  }
+  transition: transform .5s;
 }
 
 .blocklyEmboss {
@@ -188,8 +181,7 @@ let content = `
   cursor: -webkit-grabbing;
 }
 
-.blocklyDragging.blocklyDraggingDelete,
-.blocklyDragging.blocklyDraggingDelete .blocklyField {
+.blocklyDragging.blocklyDraggingDelete {
   cursor: url("<<<PATH>>>/handdelete.cur"), auto;
 }
 
@@ -249,7 +241,7 @@ let content = `
   cursor: default;
 }
 
-.blocklyIconGroup:not(:hover):not(:focus),
+.blocklyIconGroup:not(:hover),
 .blocklyIconGroupReadonly {
   opacity: .6;
 }

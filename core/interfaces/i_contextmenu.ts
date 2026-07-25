@@ -14,8 +14,3 @@ export interface IContextMenu {
    */
   showContextMenu(e: Event): void;
 }
-
-/** @returns true if the given object implements IContextMenu. */
-export function hasContextMenu(obj: any): obj is IContextMenu {
-  return obj && typeof obj.showContextMenu === 'function';
-}

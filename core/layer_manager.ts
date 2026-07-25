@@ -73,11 +73,11 @@ export class LayerManager {
    * @internal
    */
   appendToAnimationLayer(elem: IRenderedElement) {
-    const currentTransform = this.dragLayer?.style.transform;
+    const currentTransform = this.dragLayer?.getAttribute('transform');
     // Only update the current transform when appending, so animations don't
     // move if the workspace moves.
-    if (currentTransform && this.animationLayer) {
-      this.animationLayer.style.transform = currentTransform;
+    if (currentTransform) {
+      this.animationLayer?.setAttribute('transform', currentTransform);
     }
     this.animationLayer?.appendChild(elem.getSvgRoot());
   }
@@ -88,12 +88,10 @@ export class LayerManager {
    * @internal
    */
   translateLayers(newCoord: Coordinate, newScale: number) {
-    const translation = `translate(${newCoord.x}px, ${newCoord.y}px) scale(${newScale})`;
-    if (this.dragLayer) {
-      this.dragLayer.style.transform = translation;
-    }
+    const translation = `translate(${newCoord.x}, ${newCoord.y}) scale(${newScale})`;
+    this.dragLayer?.setAttribute('transform', translation);
     for (const [_, layer] of this.layers) {
-      layer.style.transform = translation;
+      layer.setAttribute('transform', translation);
     }
   }
 
@@ -101,15 +99,12 @@ export class LayerManager {
    * Moves the given element to the drag layer, which exists on top of all other
    * layers, and the drag surface.
    *
-   * @param elem The element to move onto the drag layer.
-   * @param focus Whether or not to focus the element post-move.
-   *
    * @internal
    */
-  moveToDragLayer(elem: IRenderedElement & IFocusableNode, focus = true) {
+  moveToDragLayer(elem: IRenderedElement & IFocusableNode) {
     this.dragLayer?.appendChild(elem.getSvgRoot());
 
-    if (focus && elem.canBeFocused()) {
+    if (elem.canBeFocused()) {
       // Since moving the element to the drag layer will cause it to lose focus,
       // ensure it regains focus (to ensure proper highlights & sent events).
       getFocusManager().focusNode(elem);
@@ -119,22 +114,12 @@ export class LayerManager {
   /**
    * Moves the given element off of the drag layer.
    *
-   * @param elem The element to move off of the drag layer.
-   * @param layerNum The identifier of the layer to move the element onto.
-   *     Should be a constant from layers.ts.
-   * @param focus Whether or not the element should be focused once moved onto
-   *     the destination layer.
-   *
    * @internal
    */
-  moveOffDragLayer(
-    elem: IRenderedElement & IFocusableNode,
-    layerNum: number,
-    focus = true,
-  ) {
+  moveOffDragLayer(elem: IRenderedElement & IFocusableNode, layerNum: number) {
     this.append(elem, layerNum);
 
-    if (focus && elem.canBeFocused()) {
+    if (elem.canBeFocused()) {
       // Since moving the element off the drag layer will cause it to lose focus,
       // ensure it regains focus (to ensure proper highlights & sent events).
       getFocusManager().focusNode(elem);
@@ -216,14 +201,5 @@ export class LayerManager {
    */
   getBubbleLayer(): SVGGElement {
     return this.layers.get(layerNums.BUBBLE)!;
-  }
-
-  /**
-   * Returns the drag layer.
-   *
-   * @internal
-   */
-  getDragLayer(): SVGGElement | undefined {
-    return this.dragLayer;
   }
 }

@@ -172,7 +172,7 @@ export class Input {
     // Note: Currently there are only unit tests for block.setCollapsed()
     // because this function is package. If this function goes back to being a
     // public API tests (lots of tests) should be added.
-    let renderList: BlockSvg[] = [];
+    let renderList: AnyDuringMigration[] = [];
     if (this.visible === visible) {
       return renderList;
     }

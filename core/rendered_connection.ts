@@ -11,6 +11,7 @@
  */
 // Former goog.module ID: Blockly.RenderedConnection
 
+import type {Block} from './block.js';
 import type {BlockSvg} from './block_svg.js';
 import {config} from './config.js';
 import {Connection} from './connection.js';
@@ -415,13 +416,13 @@ export class RenderedConnection
    *
    * @returns List of blocks to render.
    */
-  startTrackingAll(): BlockSvg[] {
+  startTrackingAll(): Block[] {
     this.setTracking(true);
     // All blocks that are not tracked must start tracking before any
     // rendering takes place, since rendering requires knowing the dimensions
     // of lower blocks. Also, since rendering a block renders all its parents,
     // we only need to render the leaf nodes.
-    let renderList: BlockSvg[] = [];
+    let renderList: Block[] = [];
     if (
       this.type !== ConnectionType.INPUT_VALUE &&
       this.type !== ConnectionType.NEXT_STATEMENT
@@ -643,9 +644,6 @@ export class RenderedConnection
   /** See IFocusableNode.onNodeFocus. */
   onNodeFocus(): void {
     this.highlight();
-    this.getSourceBlock().workspace.scrollBoundsIntoView(
-      this.getSourceBlock().getBoundingRectangleWithoutChildren(),
-    );
   }
 
   /** See IFocusableNode.onNodeBlur. */
@@ -658,12 +656,12 @@ export class RenderedConnection
     return true;
   }
 
-  private findHighlightSvg(): SVGPathElement | null {
+  private findHighlightSvg(): SVGElement | null {
     // This cast is valid as TypeScript's definition is wrong. See:
     // https://github.com/microsoft/TypeScript/issues/60996.
     return document.getElementById(this.id) as
       | unknown
-      | null as SVGPathElement | null;
+      | null as SVGElement | null;
   }
 }
 

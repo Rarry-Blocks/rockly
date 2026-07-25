@@ -9,10 +9,8 @@
 import {BlockSvg} from './block_svg.js';
 import * as clipboard from './clipboard.js';
 import {RenderedWorkspaceComment} from './comments.js';
-import * as contextmenu from './contextmenu.js';
 import * as eventUtils from './events/utils.js';
 import {getFocusManager} from './focus_manager.js';
-import {hasContextMenu} from './interfaces/i_contextmenu.js';
 import {isCopyable as isICopyable} from './interfaces/i_copyable.js';
 import {isDeletable as isIDeletable} from './interfaces/i_deletable.js';
 import {isDraggable} from './interfaces/i_draggable.js';
@@ -35,7 +33,6 @@ export enum names {
   PASTE = 'paste',
   UNDO = 'undo',
   REDO = 'redo',
-  MENU = 'menu',
 }
 
 /**
@@ -137,7 +134,10 @@ function isCuttable(focused: IFocusableNode): boolean {
  */
 export function registerCopy() {
   const ctrlC = ShortcutRegistry.registry.createSerializedKey(KeyCodes.C, [
-    KeyCodes.CTRL_CMD,
+    KeyCodes.CTRL,
+  ]);
+  const metaC = ShortcutRegistry.registry.createSerializedKey(KeyCodes.C, [
+    KeyCodes.META,
   ]);
 
   const copyShortcut: KeyboardShortcut = {
@@ -179,7 +179,7 @@ export function registerCopy() {
           : undefined;
       return !!clipboard.copy(focused, copyCoords);
     },
-    keyCodes: [ctrlC],
+    keyCodes: [ctrlC, metaC],
   };
   ShortcutRegistry.registry.register(copyShortcut);
 }
@@ -189,7 +189,10 @@ export function registerCopy() {
  */
 export function registerCut() {
   const ctrlX = ShortcutRegistry.registry.createSerializedKey(KeyCodes.X, [
-    KeyCodes.CTRL_CMD,
+    KeyCodes.CTRL,
+  ]);
+  const metaX = ShortcutRegistry.registry.createSerializedKey(KeyCodes.X, [
+    KeyCodes.META,
   ]);
 
   const cutShortcut: KeyboardShortcut = {
@@ -221,7 +224,7 @@ export function registerCut() {
       }
       return !!copyData;
     },
-    keyCodes: [ctrlX],
+    keyCodes: [ctrlX, metaX],
   };
 
   ShortcutRegistry.registry.register(cutShortcut);
@@ -232,7 +235,10 @@ export function registerCut() {
  */
 export function registerPaste() {
   const ctrlV = ShortcutRegistry.registry.createSerializedKey(KeyCodes.V, [
-    KeyCodes.CTRL_CMD,
+    KeyCodes.CTRL,
+  ]);
+  const metaV = ShortcutRegistry.registry.createSerializedKey(KeyCodes.V, [
+    KeyCodes.META,
   ]);
 
   const pasteShortcut: KeyboardShortcut = {
@@ -303,7 +309,7 @@ export function registerPaste() {
       const centerCoords = new Coordinate(left + width / 2, top + height / 2);
       return !!clipboard.paste(copyData, targetWorkspace, centerCoords);
     },
-    keyCodes: [ctrlV],
+    keyCodes: [ctrlV, metaV],
   };
 
   ShortcutRegistry.registry.register(pasteShortcut);
@@ -314,7 +320,10 @@ export function registerPaste() {
  */
 export function registerUndo() {
   const ctrlZ = ShortcutRegistry.registry.createSerializedKey(KeyCodes.Z, [
-    KeyCodes.CTRL_CMD,
+    KeyCodes.CTRL,
+  ]);
+  const metaZ = ShortcutRegistry.registry.createSerializedKey(KeyCodes.Z, [
+    KeyCodes.META,
   ]);
 
   const undoShortcut: KeyboardShortcut = {
@@ -333,7 +342,7 @@ export function registerUndo() {
       e.preventDefault();
       return true;
     },
-    keyCodes: [ctrlZ],
+    keyCodes: [ctrlZ, metaZ],
   };
   ShortcutRegistry.registry.register(undoShortcut);
 }
@@ -344,10 +353,13 @@ export function registerUndo() {
  */
 export function registerRedo() {
   const ctrlShiftZ = ShortcutRegistry.registry.createSerializedKey(KeyCodes.Z, [
-    KeyCodes.CTRL_CMD,
+    KeyCodes.CTRL,
     KeyCodes.SHIFT,
   ]);
-
+  const metaShiftZ = ShortcutRegistry.registry.createSerializedKey(KeyCodes.Z, [
+    KeyCodes.META,
+    KeyCodes.SHIFT,
+  ]);
   // Ctrl-y is redo in Windows.  Command-y is never valid on Macs.
   const ctrlY = ShortcutRegistry.registry.createSerializedKey(KeyCodes.Y, [
     KeyCodes.CTRL,
@@ -369,38 +381,9 @@ export function registerRedo() {
       e.preventDefault();
       return true;
     },
-    keyCodes: [ctrlShiftZ, ctrlY],
+    keyCodes: [ctrlShiftZ, metaShiftZ, ctrlY],
   };
   ShortcutRegistry.registry.register(redoShortcut);
-}
-
-/**
- * Keyboard shortcut to show the context menu on ctrl/cmd+Enter.
- */
-export function registerShowContextMenu() {
-  const ctrlEnter = ShortcutRegistry.registry.createSerializedKey(
-    KeyCodes.ENTER,
-    [KeyCodes.CTRL_CMD],
-  );
-
-  const contextMenuShortcut: KeyboardShortcut = {
-    name: names.MENU,
-    preconditionFn: (workspace) => {
-      return !workspace.isDragging();
-    },
-    callback: (workspace, e) => {
-      const target = getFocusManager().getFocusedNode();
-      if (hasContextMenu(target)) {
-        target.showContextMenu(e);
-        contextmenu.getMenu()?.highlightNext();
-
-        return true;
-      }
-      return false;
-    },
-    keyCodes: [ctrlEnter],
-  };
-  ShortcutRegistry.registry.register(contextMenuShortcut);
 }
 
 /**
@@ -417,7 +400,6 @@ export function registerDefaultShortcuts() {
   registerPaste();
   registerUndo();
   registerRedo();
-  registerShowContextMenu();
 }
 
 registerDefaultShortcuts();

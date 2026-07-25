@@ -6,7 +6,6 @@
 
 import {BlockSvg} from '../block_svg.js';
 import {getFocusManager} from '../focus_manager.js';
-import {CommentIcon} from '../icons/comment_icon.js';
 import {Icon} from '../icons/icon.js';
 import {MutatorIcon} from '../icons/mutator_icon.js';
 import type {IFocusableNode} from '../interfaces/i_focusable_node.js';
@@ -30,12 +29,6 @@ export class IconNavigationPolicy implements INavigationPolicy<Icon> {
       getFocusManager().getFocusedNode() === current
     ) {
       return current.getBubble()?.getWorkspace() ?? null;
-    } else if (
-      current instanceof CommentIcon &&
-      current.bubbleIsVisible() &&
-      getFocusManager().getFocusedNode() === current
-    ) {
-      return current.getBubble()?.getEditor() ?? null;
     }
 
     return null;

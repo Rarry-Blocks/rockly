@@ -10,7 +10,6 @@ import * as dom from '../utils/dom.js';
 import {Svg} from '../utils/svg.js';
 import type {WorkspaceSvg} from '../workspace_svg.js';
 import {CommentBarButton} from './comment_bar_button.js';
-import type {CommentView} from './comment_view.js';
 
 /**
  * Magic string appended to the comment ID to create a unique ID for this button.
@@ -43,9 +42,8 @@ export class CollapseCommentBarButton extends CommentBarButton {
     protected readonly id: string,
     protected readonly workspace: WorkspaceSvg,
     protected readonly container: SVGGElement,
-    protected readonly commentView: CommentView,
   ) {
-    super(id, workspace, container, commentView);
+    super(id, workspace, container);
 
     this.icon = dom.createSvgElement(
       Svg.IMAGE,
@@ -88,13 +86,14 @@ export class CollapseCommentBarButton extends CommentBarButton {
   override performAction(e?: Event) {
     touch.clearTouchIdentifier();
 
-    this.getCommentView().bringToFront();
+    const comment = this.getParentComment();
+    comment.view.bringToFront();
     if (e && e instanceof PointerEvent && browserEvents.isRightButton(e)) {
       e.stopPropagation();
       return;
     }
 
-    this.getCommentView().setCollapsed(!this.getCommentView().isCollapsed());
+    comment.setCollapsed(!comment.isCollapsed());
     this.workspace.hideChaff();
 
     e?.stopPropagation();

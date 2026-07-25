@@ -109,14 +109,7 @@ export class VariableMap
     variable: IVariableModel<IVariableState>,
     newType: string,
   ): IVariableModel<IVariableState> {
-    const oldType = variable.getType();
-    if (oldType === newType) return variable;
-
-    const oldTypeVariables = this.variableMap.get(oldType);
-    oldTypeVariables?.delete(variable.getId());
-    if (oldTypeVariables?.size === 0) {
-      this.variableMap.delete(oldType);
-    }
+    this.variableMap.get(variable.getType())?.delete(variable.getId());
     variable.setType(newType);
     const newTypeVariables =
       this.variableMap.get(newType) ??
@@ -125,13 +118,6 @@ export class VariableMap
     if (!this.variableMap.has(newType)) {
       this.variableMap.set(newType, newTypeVariables);
     }
-    eventUtils.fire(
-      new (eventUtils.get(EventType.VAR_TYPE_CHANGE))(
-        variable,
-        oldType,
-        newType,
-      ),
-    );
     return variable;
   }
 
@@ -259,9 +245,9 @@ export class VariableMap
     }
     const id = opt_id || idGenerator.genUid();
     const type = opt_type || '';
-    const VariableModel = registry.getClassFromOptions(
+    const VariableModel = registry.getObject(
       registry.Type.VARIABLE_MODEL,
-      this.workspace.options,
+      registry.DEFAULT,
       true,
     );
     if (!VariableModel) {
@@ -315,8 +301,6 @@ export class VariableMap
     }
     try {
       for (let i = 0; i < uses.length; i++) {
-        if (uses[i].isDeadOrDying()) continue;
-
         uses[i].dispose(true);
       }
       const variables = this.variableMap.get(variable.getType());

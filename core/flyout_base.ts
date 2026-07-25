@@ -38,6 +38,7 @@ import * as dom from './utils/dom.js';
 import * as idGenerator from './utils/idgenerator.js';
 import {Svg} from './utils/svg.js';
 import * as toolbox from './utils/toolbox.js';
+import * as Variables from './variables.js';
 import {WorkspaceSvg} from './workspace_svg.js';
 
 /**
@@ -133,12 +134,6 @@ export abstract class Flyout
    * to reflow when elements in the flyout workspace change.
    */
   private reflowWrapper: ((e: AbstractEvent) => void) | null = null;
-
-  /**
-   * If true, prevents the reflow wrapper from running. Used to prevent infinite
-   * recursion.
-   */
-  private inhibitReflowWrapper = false;
 
   /**
    * List of flyout elements.
@@ -356,8 +351,6 @@ export abstract class Flyout
         'wheel',
         this,
         this.wheel_,
-        false,
-        {passive: false},
       ),
     );
 
@@ -623,7 +616,6 @@ export abstract class Flyout
    */
   show(flyoutDef: toolbox.FlyoutDefinition | string) {
     this.workspace_.setResizesEnabled(false);
-    eventUtils.setRecordUndo(false);
     this.hide();
     this.clearOldBlocks();
 
@@ -649,14 +641,12 @@ export abstract class Flyout
       this.width_ = 0;
     }
     this.reflow();
-    eventUtils.setRecordUndo(true);
     this.workspace_.setResizesEnabled(true);
 
     // Listen for block change events, and reflow the flyout in response. This
     // accommodates e.g. resizing a non-autoclosing flyout in response to the
     // user typing long strings into fields on the blocks in the flyout.
     this.reflowWrapper = (event) => {
-      if (this.inhibitReflowWrapper) return;
       if (
         event.type === EventType.BLOCK_CHANGE ||
         event.type === EventType.BLOCK_FIELD_INTERMEDIATE_CHANGE
@@ -812,32 +802,55 @@ export abstract class Flyout
    * @internal
    */
   createBlock(originalBlock: BlockSvg): BlockSvg {
-    const targetWorkspace = this.targetWorkspace;
-    const svgRootOld = originalBlock.getSvgRoot();
-    if (!svgRootOld) {
-      throw Error('oldBlock is not rendered');
+    let newBlock = null;
+    eventUtils.disable();
+    const variablesBeforeCreation = this.targetWorkspace.getAllVariables();
+    this.targetWorkspace.setResizesEnabled(false);
+    try {
+      newBlock = this.placeNewBlock(originalBlock);
+    } finally {
+      eventUtils.enable();
     }
 
-    // Clone the block.
-    const json = this.serializeBlock(originalBlock);
-    // Normally this resizes leading to weird jumps. Save it for terminateDrag.
-    targetWorkspace.setResizesEnabled(false);
-    const block = blocks.appendInternal(json, targetWorkspace, {
-      recordUndo: true,
-    }) as BlockSvg;
+    // Close the flyout.
+    this.targetWorkspace.hideChaff();
 
-    this.positionNewBlock(originalBlock, block);
-    targetWorkspace.hideChaff();
-    return block;
+    const newVariables = Variables.getAddedVariables(
+      this.targetWorkspace,
+      variablesBeforeCreation,
+    );
+
+    if (eventUtils.isEnabled()) {
+      eventUtils.setGroup(true);
+      // Fire a VarCreate event for each (if any) new variable created.
+      for (let i = 0; i < newVariables.length; i++) {
+        const thisVariable = newVariables[i];
+        eventUtils.fire(
+          new (eventUtils.get(EventType.VAR_CREATE))(thisVariable),
+        );
+      }
+
+      // Block events come after var events, in case they refer to newly created
+      // variables.
+      eventUtils.fire(new (eventUtils.get(EventType.BLOCK_CREATE))(newBlock));
+    }
+    if (this.autoClose) {
+      this.hide();
+    }
+    return newBlock;
   }
 
   /**
    * Reflow flyout contents.
    */
   reflow() {
-    this.inhibitReflowWrapper = true;
+    if (this.reflowWrapper) {
+      this.workspace_.removeChangeListener(this.reflowWrapper);
+    }
     this.reflowInternal_();
-    this.inhibitReflowWrapper = false;
+    if (this.reflowWrapper) {
+      this.workspace_.addChangeListener(this.reflowWrapper);
+    }
   }
 
   /**
@@ -849,6 +862,30 @@ export abstract class Flyout
     return this.workspace_.scrollbar
       ? this.workspace_.scrollbar.isVisible()
       : false;
+  }
+
+  /**
+   * Copy a block from the flyout to the workspace and position it correctly.
+   *
+   * @param oldBlock The flyout block to copy.
+   * @returns The new block in the main workspace.
+   */
+  private placeNewBlock(oldBlock: BlockSvg): BlockSvg {
+    const targetWorkspace = this.targetWorkspace;
+    const svgRootOld = oldBlock.getSvgRoot();
+    if (!svgRootOld) {
+      throw Error('oldBlock is not rendered');
+    }
+
+    // Clone the block.
+    const json = this.serializeBlock(oldBlock);
+    // Normally this resizes leading to weird jumps. Save it for terminateDrag.
+    targetWorkspace.setResizesEnabled(false);
+    const block = blocks.append(json, targetWorkspace) as BlockSvg;
+
+    this.positionNewBlock(oldBlock, block);
+
+    return block;
   }
 
   /**

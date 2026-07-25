@@ -40,6 +40,17 @@ export class WorkspaceDragger {
   }
 
   /**
+   * Sever all links from this object.
+   *
+   * @internal
+   */
+  dispose() {
+    // AnyDuringMigration because:  Type 'null' is not assignable to type
+    // 'WorkspaceSvg'.
+    this.workspace = null as AnyDuringMigration;
+  }
+
+  /**
    * Start dragging the workspace.
    *
    * @internal

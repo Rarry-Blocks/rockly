@@ -469,7 +469,7 @@ export class Workspace {
       'Blockly.Workspace.getVariableUsesById',
       'v12',
       'v13',
-      'Blockly.Variables.getVariableUsesById',
+      'Blockly.Workspace.getVariableMap().getVariableUsesById',
     );
     return getVariableUsesById(this, id);
   }

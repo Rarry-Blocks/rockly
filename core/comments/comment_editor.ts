@@ -8,13 +8,10 @@ import * as browserEvents from '../browser_events.js';
 import {getFocusManager} from '../focus_manager.js';
 import {IFocusableNode} from '../interfaces/i_focusable_node.js';
 import {IFocusableTree} from '../interfaces/i_focusable_tree.js';
-import {Msg} from '../msg.js';
 import * as touch from '../touch.js';
 import * as dom from '../utils/dom.js';
-import {Rect} from '../utils/rect.js';
 import {Size} from '../utils/size.js';
 import {Svg} from '../utils/svg.js';
-import * as svgMath from '../utils/svg_math.js';
 import {WorkspaceSvg} from '../workspace_svg.js';
 
 /**
@@ -56,11 +53,6 @@ export class CommentEditor implements IFocusableNode {
       'textarea',
     ) as HTMLTextAreaElement;
     this.textArea.setAttribute('tabindex', '-1');
-    this.textArea.setAttribute('dir', this.workspace.RTL ? 'RTL' : 'LTR');
-    this.textArea.setAttribute(
-      'placeholder',
-      Msg['WORKSPACE_COMMENT_DEFAULT_TEXT'],
-    );
     dom.addClass(this.textArea, 'blocklyCommentText');
     dom.addClass(this.textArea, 'blocklyTextarea');
     dom.addClass(this.textArea, 'blocklyText');
@@ -92,18 +84,6 @@ export class CommentEditor implements IFocusableNode {
         getFocusManager().focusNode(this);
         touch.clearTouchIdentifier();
       },
-    );
-
-    // Don't zoom with mousewheel; let it scroll instead.
-    browserEvents.conditionalBind(
-      this.textArea,
-      'wheel',
-      this,
-      (e: Event) => {
-        e.stopPropagation();
-      },
-      false,
-      {passive: true},
     );
 
     // Register listener for keydown events that would finish editing.
@@ -202,16 +182,7 @@ export class CommentEditor implements IFocusableNode {
   getFocusableTree(): IFocusableTree {
     return this.workspace;
   }
-  onNodeFocus(): void {
-    const bbox = Rect.from(this.foreignObject.getBoundingClientRect());
-    this.workspace.scrollBoundsIntoView(
-      Rect.createFromPoint(
-        svgMath.screenToWsCoordinates(this.workspace, bbox.getOrigin()),
-        bbox.getWidth(),
-        bbox.getHeight(),
-      ),
-    );
-  }
+  onNodeFocus(): void {}
   onNodeBlur(): void {}
   canBeFocused(): boolean {
     if (this.id) return true;

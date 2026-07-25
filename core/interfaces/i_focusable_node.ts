@@ -59,9 +59,6 @@ export interface IFocusableNode {
    * they should avoid the following:
    * - Creating or removing DOM elements (including via the renderer or drawer).
    * - Affecting focus via DOM focus() calls or the FocusManager.
-   *
-   * Implementations may consider scrolling themselves into view here; that is
-   * not handled by the focus manager.
    */
   onNodeFocus(): void;
 

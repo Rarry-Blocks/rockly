@@ -29,7 +29,6 @@ import * as aria from './utils/aria.js';
 import {Coordinate} from './utils/coordinate.js';
 import * as dom from './utils/dom.js';
 import * as parsing from './utils/parsing.js';
-import {Size} from './utils/size.js';
 import * as utilsString from './utils/string.js';
 import {Svg} from './utils/svg.js';
 
@@ -554,7 +553,8 @@ export class FieldDropdown extends Field<string> {
     } else {
       arrowWidth = dom.getTextWidth(this.arrow as SVGTSpanElement);
     }
-    this.size_ = new Size(imageWidth + arrowWidth + xPadding * 2, height);
+    this.size_.width = imageWidth + arrowWidth + xPadding * 2;
+    this.size_.height = height;
 
     let arrowX = 0;
     if (block.RTL) {
@@ -595,7 +595,8 @@ export class FieldDropdown extends Field<string> {
         height / 2 - this.getConstants()!.FIELD_DROPDOWN_SVG_ARROW_SIZE / 2,
       );
     }
-    this.size_ = new Size(textWidth + arrowWidth + xPadding * 2, height);
+    this.size_.width = textWidth + arrowWidth + xPadding * 2;
+    this.size_.height = height;
 
     this.positionTextElement_(xPadding, textWidth);
   }
@@ -698,30 +699,25 @@ export class FieldDropdown extends Field<string> {
     prefix?: string;
     suffix?: string;
   } {
-    let hasNonTextContent = false;
+    let hasImages = false;
     const trimmedOptions = options.map((option): MenuOption => {
-      if (option === FieldDropdown.SEPARATOR) {
-        hasNonTextContent = true;
-        return option;
-      }
+      if (option === FieldDropdown.SEPARATOR) return option;
 
       const [label, value] = option;
       if (typeof label === 'string') {
         return [parsing.replaceMessageReferences(label), value];
       }
 
-      hasNonTextContent = true;
+      hasImages = true;
       // Copy the image properties so they're not influenced by the original.
       // NOTE: No need to deep copy since image properties are only 1 level deep.
       const imageLabel = isImageProperties(label)
         ? {...label, alt: parsing.replaceMessageReferences(label.alt)}
-        : label;
+        : {...label};
       return [imageLabel, value];
     });
 
-    if (hasNonTextContent || options.length < 2) {
-      return {options: trimmedOptions};
-    }
+    if (hasImages || options.length < 2) return {options: trimmedOptions};
 
     const stringOptions = trimmedOptions as [string, string][];
     const stringLabels = stringOptions.map(([label]) => label);
@@ -797,7 +793,7 @@ export class FieldDropdown extends Field<string> {
       } else if (typeof option[1] !== 'string') {
         foundError = true;
         console.error(
-          `Invalid option[${i}]: Each FieldDropdown option id must be a string.
+          `Invalid option[${i}]: Each FieldDropdown option id must be a string. 
           Found ${option[1]} in: ${option}`,
         );
       } else if (
@@ -810,7 +806,7 @@ export class FieldDropdown extends Field<string> {
       ) {
         foundError = true;
         console.error(
-          `Invalid option[${i}]: Each FieldDropdown option must have a string
+          `Invalid option[${i}]: Each FieldDropdown option must have a string 
           label, image description, or HTML element. Found ${option[0]} in: ${option}`,
         );
       }

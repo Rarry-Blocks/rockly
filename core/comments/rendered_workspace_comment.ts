@@ -23,6 +23,7 @@ import {IFocusableNode} from '../interfaces/i_focusable_node.js';
 import type {IFocusableTree} from '../interfaces/i_focusable_tree.js';
 import {IRenderedElement} from '../interfaces/i_rendered_element.js';
 import {ISelectable} from '../interfaces/i_selectable.js';
+import * as layers from '../layers.js';
 import * as commentSerialization from '../serialization/workspace_comments.js';
 import {Coordinate} from '../utils/coordinate.js';
 import * as dom from '../utils/dom.js';
@@ -72,6 +73,15 @@ export class RenderedWorkspaceComment
       'pointerdown',
       this,
       this.startGesture,
+    );
+    // Don't zoom with mousewheel; let it scroll instead.
+    browserEvents.conditionalBind(
+      this.view.getSvgRoot(),
+      'wheel',
+      this,
+      (e: Event) => {
+        e.stopPropagation();
+      },
     );
   }
 
@@ -279,7 +289,6 @@ export class RenderedWorkspaceComment
       paster: WorkspaceCommentPaster.TYPE,
       commentState: commentSerialization.save(this, {
         addCoordinates: true,
-        saveIds: false,
       }),
     };
   }
@@ -345,8 +354,7 @@ export class RenderedWorkspaceComment
   onNodeFocus(): void {
     this.select();
     // Ensure that the comment is always at the top when focused.
-    this.getSvgRoot().parentElement?.appendChild(this.getSvgRoot());
-    this.workspace.scrollBoundsIntoView(this.getBoundingRectangle());
+    this.workspace.getLayerManager()?.append(this, layers.BLOCK);
   }
 
   /** See IFocusableNode.onNodeBlur. */

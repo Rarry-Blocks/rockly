@@ -104,26 +104,52 @@ export function save(
   if (block.isInsertionMarker()) {
     return null;
   }
-  const state: State = {
+  const state = {
     'type': block.type,
     'id': saveIds ? block.id : undefined,
   };
 
   if (addCoordinates) {
-    saveCoords(block, state);
+    // AnyDuringMigration because:  Argument of type '{ type: string; id:
+    // string; }' is not assignable to parameter of type 'State'.
+    saveCoords(block, state as AnyDuringMigration);
   }
-  saveAttributes(block, state);
-  saveExtraState(block, state, doFullSerialization);
-  saveIcons(block, state, doFullSerialization);
-  saveFields(block, state, doFullSerialization);
+  // AnyDuringMigration because:  Argument of type '{ type: string; id: string;
+  // }' is not assignable to parameter of type 'State'.
+  saveAttributes(block, state as AnyDuringMigration);
+  // AnyDuringMigration because:  Argument of type '{ type: string; id: string;
+  // }' is not assignable to parameter of type 'State'.
+  saveExtraState(block, state as AnyDuringMigration, doFullSerialization);
+  // AnyDuringMigration because:  Argument of type '{ type: string; id: string;
+  // }' is not assignable to parameter of type 'State'.
+  saveIcons(block, state as AnyDuringMigration, doFullSerialization);
+  // AnyDuringMigration because:  Argument of type '{ type: string; id: string;
+  // }' is not assignable to parameter of type 'State'.
+  saveFields(block, state as AnyDuringMigration, doFullSerialization);
   if (addInputBlocks) {
-    saveInputBlocks(block, state, doFullSerialization, saveIds);
+    // AnyDuringMigration because:  Argument of type '{ type: string; id:
+    // string; }' is not assignable to parameter of type 'State'.
+    saveInputBlocks(
+      block,
+      state as AnyDuringMigration,
+      doFullSerialization,
+      saveIds,
+    );
   }
   if (addNextBlocks) {
-    saveNextBlocks(block, state, doFullSerialization, saveIds);
+    // AnyDuringMigration because:  Argument of type '{ type: string; id:
+    // string; }' is not assignable to parameter of type 'State'.
+    saveNextBlocks(
+      block,
+      state as AnyDuringMigration,
+      doFullSerialization,
+      saveIds,
+    );
   }
 
-  return state;
+  // AnyDuringMigration because:  Type '{ type: string; id: string; }' is not
+  // assignable to type 'State'.
+  return state as AnyDuringMigration;
 }
 
 /**
@@ -391,7 +417,7 @@ export function appendInternal(
   }
   eventUtils.disable();
 
-  const variablesBeforeCreation = workspace.getVariableMap().getAllVariables();
+  const variablesBeforeCreation = workspace.getAllVariables();
   let block;
   try {
     block = appendPrivate(state, workspace, {parentConnection, isShadow});
