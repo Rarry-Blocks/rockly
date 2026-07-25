@@ -13,7 +13,7 @@
       await loadScript('../../build/msg/en.js');
       await loadScript('screenshot.js');
 
-      const SHAPES = {HEXAGONAL: 1, ROUND: 2, SQUARE: 3, PILLOW: 4, BOWL: 5};
+      const SHAPES = {HEXAGONAL: 1, ROUND: 2, SQUARE: 3, PILLOW: 4, BOWL: 5, SPIKEY: 6};
 
       function createBlocks() {
         Object.entries(SHAPES).forEach(([key, shape]) => {
@@ -31,7 +31,7 @@
             init: function () {
               this.appendValueInput('IN0');
               this.setOutput(true, null);
-              this.setColour(230);
+              this.setColour(215);
               this.setOutputShape(shape);
               this.setTooltip(`Input block for ${key}`);
             },

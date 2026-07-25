@@ -56,8 +56,9 @@ export class ConstantProvider extends BaseConstantProvider {
     SQUARE: 3,
     PILLOW: 4,
     BOWL: 5,
-    PUZZLE: 6,
-    NOTCH: 7,
+    SPIKEY: 6,
+    PUZZLE: 7,
+    NOTCH: 8,
   };
 
   /**
@@ -74,8 +75,9 @@ export class ConstantProvider extends BaseConstantProvider {
       1: 2 * this.GRID_UNIT, // Hexagon in hexagon.
       2: 5 * this.GRID_UNIT, // Round in hexagon.
       3: 5 * this.GRID_UNIT, // Square in hexagon.
-      4: 5 * this.GRID_UNIT, // Pillow in hexagon.
-      5: 5 * this.GRID_UNIT, // Bowl in hexagon.
+      4: 4 * this.GRID_UNIT, // Pillow in hexagon.
+      5: {left: 5 * this.GRID_UNIT, right: 3 * this.GRID_UNIT}, // Bowl in hexagon.
+      6: 5 * this.GRID_UNIT, // Spikey in hexagon.
     },
     2: {
       // Outer shape: round.
@@ -83,35 +85,49 @@ export class ConstantProvider extends BaseConstantProvider {
       1: 3 * this.GRID_UNIT, // Hexagon in round.
       2: 1 * this.GRID_UNIT, // Round in round.
       3: 4 * this.GRID_UNIT, // Square in round.
-      4: 3 * this.GRID_UNIT, // Pillow in round.
-      5: {left: 6 * this.GRID_UNIT, right: 1 * this.GRID_UNIT}, // Bowl in round.
+      4: 2 * this.GRID_UNIT, // Pillow in round.
+      5: {left: 8 * this.GRID_UNIT, right: 1 * this.GRID_UNIT}, // Bowl in round.
+      6: {left: 8 * this.GRID_UNIT, right: 1 * this.GRID_UNIT}, // Spikey in round.
     },
     3: {
       // Outer shape: square.
       0: 2 * this.GRID_UNIT, // Field in square.
-      1: 2 * this.GRID_UNIT, // Hexagon in square.
-      2: 2 * this.GRID_UNIT, // Round in square.
+      1: 1 * this.GRID_UNIT, // Hexagon in square.
+      2: 1 * this.GRID_UNIT, // Round in square.
       3: 1 * this.GRID_UNIT, // Square in square.
-      4: 2 * this.GRID_UNIT, // Pillow in square.
-      5: 2 * this.GRID_UNIT, // Bowl in square.
+      4: 1 * this.GRID_UNIT, // Pillow in square.
+      5: 1 * this.GRID_UNIT, // Bowl in square.
+      6: 1 * this.GRID_UNIT, // Spikey in square.
     },
     4: {
       // Outer shape: pillow
-      0: 3 * this.GRID_UNIT, // Field in pillow.
+      0: 4 * this.GRID_UNIT, // Field in pillow.
       1: 3 * this.GRID_UNIT, // Hexagon in pillow.
       2: 3 * this.GRID_UNIT, // Round in pillow.
       3: 4 * this.GRID_UNIT, // Square in pillow.
       4: 2 * this.GRID_UNIT, // Pillow in pillow.
       5: 5 * this.GRID_UNIT, // Bowl in pillow.
+      6: 5 * this.GRID_UNIT, // Spikey in pillow.
     },
     5: {
       // Outer shape: bowl.
       0: 4 * this.GRID_UNIT, // Field in bowl.
       1: {left: 4 * this.GRID_UNIT, right: 2 * this.GRID_UNIT}, // Hexagon in bowl.
-      2: {left: 4 * this.GRID_UNIT, right: 2 * this.GRID_UNIT}, // Round in bowl.
-      3: {left: 4 * this.GRID_UNIT, right: 8 * this.GRID_UNIT}, // Square in bowl.
+      2: {left: 4 * this.GRID_UNIT, right: 1 * this.GRID_UNIT}, // Round in bowl.
+      3: {left: 4 * this.GRID_UNIT, right: 5 * this.GRID_UNIT}, // Square in bowl.
       4: {left: 4 * this.GRID_UNIT, right: 2 * this.GRID_UNIT}, // Pillow in bowl.
       5: {left: 1.5 * this.GRID_UNIT, right: 1 * this.GRID_UNIT}, // Bowl in bowl.
+      6: {left: 3 * this.GRID_UNIT, right: 1 * this.GRID_UNIT}, // Spikey in bowl.
+    },
+    6: {
+      // Outer shape: spikey.
+      0: 4 * this.GRID_UNIT, // Field in spikey.
+      1: {left: 4 * this.GRID_UNIT, right: 2 * this.GRID_UNIT}, // Hexagon in spikey.
+      2: {left: 4 * this.GRID_UNIT, right: 1 * this.GRID_UNIT}, // Round in spikey.
+      3: {left: 4 * this.GRID_UNIT, right: 5 * this.GRID_UNIT}, // Square in spikey.
+      4: {left: 4 * this.GRID_UNIT, right: 2 * this.GRID_UNIT}, // Pillow in spikey.
+      5: {left: 4 * this.GRID_UNIT, right: 1 * this.GRID_UNIT}, // Bowl in spikey.
+      6: {left: 3 * this.GRID_UNIT, right: 1 * this.GRID_UNIT}, // Spikey in spikey.
     },
   };
 
@@ -197,6 +213,12 @@ export class ConstantProvider extends BaseConstantProvider {
   BOWL: Shape | null = null;
 
   /**
+   * The object containing information about the spikey shape for set
+   * reporter blocks. Null before init is called.
+   */
+  SPIKEY: Shape | null = null;
+
+  /**
    * Creates a new ConstantProvider.
    *
    * @param gridUnit If set, defines the base unit used to calculate other
@@ -279,7 +301,7 @@ export class ConstantProvider extends BaseConstantProvider {
     this.FIELD_CHECKBOX_X_OFFSET = 1 * this.GRID_UNIT;
 
     /** The maximum width of a dynamic connection shape. */
-    this.MAX_DYNAMIC_CONNECTION_SHAPE_WIDTH = 12 * this.GRID_UNIT;
+    this.MAX_DYNAMIC_CONNECTION_SHAPE_WIDTH = 8 * this.GRID_UNIT;
   }
 
   override setFontConstants_(theme: Theme) {
@@ -297,6 +319,7 @@ export class ConstantProvider extends BaseConstantProvider {
     this.SQUARED = this.makeSquared();
     this.PILLOW = this.makePillow();
     this.BOWL = this.makeBowl();
+    this.SPIKEY = this.makeSpikey();
 
     this.STATEMENT_INPUT_NOTCH_OFFSET =
       this.NOTCH_OFFSET_LEFT +
@@ -754,6 +777,98 @@ export class ConstantProvider extends BaseConstantProvider {
     };
   }
 
+  /**
+   * Create sizing and path information about a spikey shape.
+   *
+   * @returns An object containing sizing and path information about a spikey
+   *     shape for connections.
+   */
+  protected makeSpikey(): Shape {
+    const maxW = this.MAX_DYNAMIC_CONNECTION_SHAPE_WIDTH;
+    const maxH = maxW * 2;
+
+    function makeRoundedPath(
+      blockHeight: number,
+      up: boolean,
+      right: boolean,
+    ): string {
+      const remainingHeight =
+        blockHeight > maxH ? blockHeight - maxH : 0;
+      const height = blockHeight > maxH ? maxH : blockHeight;
+      const radius = height / 2;
+      const sweep = right === up ? '0' : '1';
+      return (
+        svgPaths.arc(
+          'a',
+          '0 0,' + sweep,
+          radius,
+          svgPaths.point((right ? 1 : -1) * radius, (up ? -1 : 1) * radius),
+        ) +
+        svgPaths.lineOnAxis('v', (up ? -1 : 1) * remainingHeight) +
+        svgPaths.arc(
+          'a',
+          '0 0,' + sweep,
+          radius,
+          svgPaths.point((right ? -1 : 1) * radius, (up ? -1 : 1) * radius),
+        )
+      );
+    }
+
+    function makeMainPath(
+      blockHeight: number,
+      up: boolean,
+      right: boolean,
+    ): string {
+      const dirR = right ? 1 : -1;
+      const dirU = up ? -1 : 1;
+
+      const remainingHeight = blockHeight > maxH ? blockHeight - maxH : 0;
+      const height = blockHeight > maxH ? maxH : blockHeight;
+      const totalHeight = height + remainingHeight;
+      const radius = (height / 4) * dirR;
+      const radiusHeight = (totalHeight / 4) * dirU;
+
+      return (
+        svgPaths.lineOnAxis('h', radius * 2) +
+        svgPaths.line([svgPaths.point(-radius, radiusHeight)]) +
+        svgPaths.line([svgPaths.point(radius, radiusHeight)]) +
+        svgPaths.line([svgPaths.point(-radius, radiusHeight)]) +
+        svgPaths.line([svgPaths.point(radius, radiusHeight)]) +
+        svgPaths.lineOnAxis('h', -radius * 2)
+      );
+    }
+
+    return {
+      type: this.SHAPES.SPIKEY,
+      isDynamic: true,
+      width(height: number): number {
+        const halfHeight = height / 2;
+        return halfHeight > maxW ? maxW : halfHeight;
+      },
+      height(height: number): number {
+        return height;
+      },
+      connectionOffsetY(connectionHeight: number): number {
+        return connectionHeight / 2;
+      },
+      connectionOffsetX(connectionWidth: number): number {
+        return -connectionWidth;
+      },
+      pathDown(height: number): string {
+        return makeMainPath(height, false, false);
+      },
+      pathUp(height: number): string {
+        return makeMainPath(height, true, false);
+      },
+      pathRightDown(height: number): string {
+        return makeRoundedPath(height, false, true);
+      },
+      pathRightUp(height: number): string {
+        return makeRoundedPath(height, false, true);
+      },
+    };
+  }
+
   override shapeFor(connection: RenderedConnection): Shape {
     let checks = connection.getCheck();
     if (!checks && connection.targetConnection) {
@@ -777,6 +892,8 @@ export class ConstantProvider extends BaseConstantProvider {
               return this.PILLOW!;
             case this.SHAPES.BOWL:
               return this.BOWL!;
+            case this.SHAPES.SPIKEY:
+              return this.SPIKEY!;
           }
         }
         // Includes doesn't work in IE.
@@ -785,6 +902,9 @@ export class ConstantProvider extends BaseConstantProvider {
         }
         if (checks && checks.includes('Array')) {
           return this.BOWL!;
+        }
+        if (checks && checks.includes('Set')) {
+          return this.SPIKEY!;
         }
         if (checks && checks.includes('Boolean')) {
           return this.HEXAGONAL!;
