@@ -31,6 +31,11 @@ export class Dragger implements IDragger {
     this.startLoc = draggable.getRelativeToSurfaceXY();
   }
 
+  /** Sets the draggable that this dragger is operating on. */
+  setDraggable(draggable: IDraggable): void {
+    this.draggable = draggable;
+  }
+
   /** Handles any drag startup. */
   onDragStart(e: PointerEvent) {
     if (!eventUtils.getGroup()) {

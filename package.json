@@ -1,6 +1,6 @@
 {
-  "name": "rockly",
-  "version": "1.0.0",
+  "name": "blockly",
+  "version": "1.1.0",
   "description": "A modification of Blockly created for Rarry.",
   "keywords": [
     "blockly", "rockly"

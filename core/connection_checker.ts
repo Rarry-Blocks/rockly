@@ -41,6 +41,17 @@ export class ConnectionChecker implements IConnectionChecker {
     isDragging: boolean,
     opt_distance?: number,
   ): boolean {
+    if (isDragging) {
+      const existing = b?.targetConnection?.getSourceBlock();
+      if (
+        existing &&
+        typeof existing.canDuplicateOnDrag === 'function' &&
+        existing.canDuplicateOnDrag()
+      ) {
+        return false;
+      }
+    }
+
     return (
       this.canConnectWithReason(a, b, isDragging, opt_distance) ===
       Connection.CAN_CONNECT
@@ -211,10 +222,58 @@ export class ConnectionChecker implements IConnectionChecker {
     // Find any intersection in the check lists.
     for (let i = 0; i < checkArrayOne.length; i++) {
       if (checkArrayTwo.includes(checkArrayOne[i])) {
-        return true;
+        // Check exclusivity before returning true.
+        if (!this.violatesExclusivity(a, b) && !this.violatesExclusivity(b, a)) {
+          return true;
+        }
+        return false;
       }
     }
     // No intersection.
+    return false;
+  }
+
+  /**
+   * Checks whether connecting via the given connection would violate
+   * exclusivity rules for "dual" blocks (blocks that have both an output
+   * and a previous/next connection).
+   *
+   * @param conn The connection being checked.
+   * @param target The connection being connected to.
+   * @returns True if the connection violates exclusivity rules.
+   */
+  protected violatesExclusivity(conn: Connection, target: Connection): boolean {
+    const block = conn.getSourceBlock();
+    if (!block) {
+      return false;
+    }
+
+    const hasOutput = !!block.outputConnection;
+    const hasPrevious = !!block.previousConnection;
+    const hasNext = !!block.nextConnection;
+    const isDualBlock = hasOutput && (hasPrevious || hasNext);
+
+    if (!isDualBlock) {
+      return false;
+    }
+
+    if (conn === block.outputConnection) {
+      const isPrevConnected = !!block.previousConnection?.isConnected();
+      const isNextConnected = !!block.nextConnection?.isConnected();
+
+      if (isPrevConnected || isNextConnected) {
+        return true;
+      }
+    }
+
+    if (conn === block.previousConnection || conn === block.nextConnection) {
+      const isOutputConnected = !!block.outputConnection?.isConnected();
+
+      if (isOutputConnected) {
+        return true;
+      }
+    }
+
     return false;
   }
 

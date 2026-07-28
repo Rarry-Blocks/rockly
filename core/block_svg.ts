@@ -30,6 +30,7 @@ import {
   LegacyContextMenuOption,
 } from './contextmenu_registry.js';
 import {BlockDragStrategy} from './dragging/block_drag_strategy.js';
+import {DuplicateOnDrag} from './dragging/duplicate_on_drag_strategy.js';
 import type {BlockMove} from './events/events_block_move.js';
 import {EventType} from './events/type.js';
 import * as eventUtils from './events/utils.js';
@@ -1759,6 +1760,15 @@ export class BlockSvg
     this.dragStrategy = dragStrategy;
   }
 
+  override setDuplicateOnDrag(value: boolean): void {
+    super.setDuplicateOnDrag(value);
+    if (value) {
+      this.setDragStrategy(new DuplicateOnDrag(this));
+    } else {
+      this.setDragStrategy(new BlockDragStrategy(this));
+    }
+  }
+
   /** Returns whether this block is copyable or not. */
   isCopyable(): boolean {
     return this.isOwnDeletable() && this.isOwnMovable();
@@ -1824,6 +1834,10 @@ export class BlockSvg
           ? json['classes'].join(' ')
           : json['classes'],
       );
+    }
+
+    if (json['duplicateOnDrag'] !== undefined) {
+      this.setDuplicateOnDrag(json['duplicateOnDrag']);
     }
   }
 

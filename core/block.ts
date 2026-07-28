@@ -196,6 +196,9 @@ export class Block {
   protected collapsed_ = false;
   protected outputShape_: number | null = null;
 
+  /** Whether this block should duplicate on drag instead of moving. */
+  protected duplicateOnDrag_ = false;
+
   /**
    * Is the current block currently in the process of being disposed?
    */
@@ -1786,6 +1789,9 @@ export class Block {
       const localizedValue = parsing.replaceMessageReferences(rawValue);
       this.setHelpUrl(localizedValue);
     }
+    if (json['duplicateOnDrag'] !== undefined) {
+      this.setDuplicateOnDrag(json['duplicateOnDrag']);
+    }
     if (typeof json['extensions'] === 'string') {
       console.warn(
         warningPrefix +
@@ -2468,6 +2474,49 @@ export class Block {
       return next.allInputsFilled(opt_shadowBlocksAreFilled);
     }
 
+    return true;
+  }
+
+  /**
+   * Sets whether this block should duplicate on drag instead of moving.
+   * When enabled, dragging a shadow block will create a copy that gets
+   * dragged instead.
+   *
+   * @param value Whether to duplicate on drag.
+   */
+  setDuplicateOnDrag(value: boolean): void {
+    this.duplicateOnDrag_ = value;
+  }
+
+  /**
+   * Returns whether this block can duplicate on drag.
+   * Only shadow blocks with duplicateOnDrag enabled can duplicate on drag.
+   *
+   * @returns Whether this block can duplicate on drag.
+   */
+  canDuplicateOnDrag(): boolean {
+    return this.duplicateOnDrag_ && this.isShadow();
+  }
+
+  /**
+   * Returns whether the given field is the only field on this block,
+   * with no other inputs.
+   *
+   * @param field The field to check.
+   * @returns True if the field is the only field on the block.
+   */
+  isOnlyField(field: Field): boolean {
+    for (let i = 0; i < this.inputList.length; i++) {
+      const input = this.inputList[i];
+      if (!(input instanceof DummyInput)) {
+        return false;
+      }
+      for (let j = 0; j < input.fieldRow.length; j++) {
+        if (input.fieldRow[j] !== field) {
+          return false;
+        }
+      }
+    }
     return true;
   }
 
