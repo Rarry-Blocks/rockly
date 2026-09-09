@@ -59,8 +59,6 @@ export function controls_if(block: Block, generator: JavascriptGenerator) {
   return code + '\n';
 }
 
-export const controls_ifelse = controls_if;
-
 export function logic_compare(
   block: Block,
   generator: JavascriptGenerator,
@@ -127,6 +125,14 @@ export function logic_boolean(
   generator: JavascriptGenerator,
 ): [string, Order] {
   // Boolean values true and false.
+  const code = block.getFieldValue('BOOL') === 'TRUE' ? 'true' : 'false';
+  return [code, Order.ATOMIC];
+}
+
+export function checkbox(
+  block: Block,
+  generator: JavascriptGenerator,
+): [string, Order] {
   const code = block.getFieldValue('BOOL') === 'TRUE' ? 'true' : 'false';
   return [code, Order.ATOMIC];
 }
